@@ -12,7 +12,7 @@ internal class MoneyFlowIndex {
         double[] moneyFlow = new double[signal.Count - 1];
 
         for (int i = 1; i < signal.Count; i++)
-            moneyFlow[i - 1] = (signal[i].TypicalPrice > signal[i - 1].TypicalPrice ? 1 : -1) * signal[i].TypicalPrice * signal[i].TypicalPrice;
+            moneyFlow[i - 1] = (signal[i].TypicalPrice > signal[i - 1].TypicalPrice ? 1 : -1) * signal[i].TypicalPrice * signal[i].Volume;
 
         for (int i = moneyFlow.Length; i > _period + 1; i--) {
             double[] sequence = moneyFlow[(i - _period)..i];

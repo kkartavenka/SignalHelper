@@ -35,7 +35,7 @@ public partial class MainWindow : Window {
 
     private readonly MenuItem _openSignalMenuItem = new() { Header = "Open signal" };
     private readonly MenuItem _attachSignalMenuItem = new() { Header = "Attach additional signal", IsEnabled = false };
-    private readonly MenuItem _exportSignalMenuItem = new() { Header = "Export", IsEnabled = false };
+    private readonly MenuItem _exportSignalMenuItem = new() { Header = "Export to CSV", IsEnabled = false };
     private readonly MenuItem _buyPositionMenuItem = new() { Header = "Buy", IsEnabled = false };
     private readonly MenuItem _sellPositionMenuItem = new() { Header = "Sell", IsEnabled = false };
     private readonly MenuItem _returnViewMenuItem = new() { Header = "Reset View", IsEnabled = false };
@@ -57,6 +57,7 @@ public partial class MainWindow : Window {
         _sellPositionMenuItem.Click += SetSellPosition;
         _returnViewMenuItem.Click += ReturnView;
         _closeSignalMenuItem.Click += CloseSignalEvent;
+        _exportSignalMenuItem.Click += ExportToCsv;
 
         _rightClickMenu = new ContextMenu();
         _rightClickMenu.Items.Add(_buyPositionMenuItem);
@@ -239,9 +240,28 @@ public partial class MainWindow : Window {
         IndicatorSignal2.Render();
     }
 
+    private void ExportToCsv(object sender, EventArgs e) {
+        if (_runner == null)
+            return;
+
+        var ofd = new SaveFileDialog();
+
+        ofd.ShowDialog();
+
+        if (ofd.FileName == String.Empty)
+            return;
+
+        _runner.ExportToCsv(ofd.FileName);
+    }
+
     private void ReturnView(object sender, EventArgs e) {
         SignalPlot.Plot.AxisAuto();
+        IndicatorSignal1.Plot.AxisAuto();
+        IndicatorSignal2.Plot.AxisAuto();
+
         SignalPlot.Render();
+        IndicatorSignal1.Render();
+        IndicatorSignal2.Render();
     }
 
     private void SetBuyPosition(object sender, EventArgs e) {
