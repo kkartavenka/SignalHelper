@@ -75,6 +75,14 @@ public partial class MainWindow : Window {
         SignalPlot.Refresh();
     }
 
+    private void ApplyAutoAssignment_Click(object sender, EventArgs e) {
+        if (_runner == null)
+            return;
+
+        if (int.TryParse(Period.Text, out int period) && double.TryParse(MinRSquared.Text, out double minRSquared) && double.TryParse(MeanChange.Text, out double meanChange))
+            new PositionAutoAssign(period: period, minMeanChange: meanChange, minRSquared: minRSquared).AssignViaTypicalPrice(ref _runner);
+    }
+
     private void AddCustomContextMenuEvent(object? sender, EventArgs e) {
         if (_runner != null)
             _runner.SetClickedIndex(SignalPlot.GetMouseCoordinates().x);
@@ -244,14 +252,20 @@ public partial class MainWindow : Window {
         if (_runner == null)
             return;
 
+        var signalTypeDialog = new InputDialog();
+        bool? dialogResult = signalTypeDialog.ShowDialog();
+
+        if (dialogResult ?? false)
+            return;
+
         var ofd = new SaveFileDialog();
 
         ofd.ShowDialog();
 
-        if (ofd.FileName == String.Empty)
+        if (ofd.FileName == string.Empty)
             return;
 
-        _runner.ExportToCsv(ofd.FileName);
+        _runner.ExportToCsv(filename: ofd.FileName, signalType: signalTypeDialog.SignalType);
     }
 
     private void ReturnView(object sender, EventArgs e) {

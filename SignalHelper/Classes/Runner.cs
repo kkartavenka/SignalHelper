@@ -73,15 +73,20 @@ internal class Runner {
         });
     }
 
-    internal bool ExportToCsv(string filename) {
+    internal void ClearPositions() => Signal.ForEach(row => {
+        row.IsBuy = false;
+        row.IsSell = false;
+    });
+
+    internal bool ExportToCsv(string filename, string signalType) {
         if (_signal == null)
             return false;
 
-        string header = "signal_name,attached_signal_name,is_buy,is_sell,date,open,high,low,close,volume,signal_rsi,signal_mfi,attached_signal_rsi,attached_signal_mfi";
+        string header = "signal_name,signal_type,attached_signal_name,is_buy,is_sell,date,open,high,low,close,volume,signal_rsi,signal_mfi,attached_signal_rsi,attached_signal_mfi";
         
         var lines = new List<string>(_signal.Count-_period);
 
-        lines.AddRange(_signal.Skip(_period + 2).Select(m => $"{SignalName},{AttachedSignalName},{m.IsBuy},{m.IsSell},{m.Date.ToOADate()},{m.Open},{m.High},{m.Low},{m.Close},{m.Volume},{m.Rsi},{m.Mfi},{m.AttachedRsi},{m.AttachedMfi}"));
+        lines.AddRange(_signal.Skip(_period + 2).Select(m => $"{SignalName},{signalType},{AttachedSignalName},{m.IsBuy},{m.IsSell},{m.Date.ToOADate()},{m.Open},{m.High},{m.Low},{m.Close},{m.Volume},{m.Rsi},{m.Mfi},{m.AttachedRsi},{m.AttachedMfi}"));
 
         if (!File.Exists(filename)) {
             lines.Insert(0, header);
@@ -118,13 +123,25 @@ internal class Runner {
 
     internal void SetClickedIndex(double x) => _clickedIndex = GetNearbyCandleIndex(x);
 
-    internal void SetBuy() {
+    internal void SetBuy(int index = -1) {
         if (_signal == null) return;
+
+        if (index > -1) {
+            _signal[index].IsBuy = true;
+            return;
+        }
+
         _signal[_clickedIndex].IsBuy = !_signal[_clickedIndex].IsBuy;
     }
 
-    internal void SetSell() {
+    internal void SetSell(int index = -1) {
         if (_signal == null) return;
+
+        if (index > -1) {
+            _signal[index].IsSell = true;
+            return;
+        }
+
         _signal[_clickedIndex].IsSell = !_signal[_clickedIndex].IsSell;
     }
 

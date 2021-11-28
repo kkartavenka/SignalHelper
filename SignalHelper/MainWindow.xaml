@@ -9,6 +9,28 @@
     <DockPanel>
         <ScrollViewer>
             <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                    </Grid.RowDefinitions>
+
+                    <Label Content="Mean Change, %" Grid.Row="0" Grid.Column="0" FontWeight="Bold" />
+                    <Label Content="Period" Grid.Row="0" Grid.Column="1" FontWeight="Bold" />
+                    <Label Content="Minimum R-Squared" Grid.Row="0" Grid.Column="2" FontWeight="Bold" />
+                    <Label Content="Apply" Grid.Row="0" Grid.Column="3" FontWeight="Bold" />
+
+                    <TextBox Name="MeanChange" Grid.Row="1" Grid.Column="0"></TextBox>
+                    <TextBox Name="Period" Grid.Row="1" Grid.Column="1"></TextBox>
+                    <TextBox Name="MinRSquared" Grid.Row="1" Grid.Column="2"></TextBox>
+                    <Button Name="ApplyAutoAssignment" Grid.Row="1" Grid.Column="3" Height="20" VerticalAlignment="Top" Click="ApplyAutoAssignment_Click">Apply</Button>
+                </Grid>
                 <WpfPlot Name="SignalPlot" MinHeight="250" MaxHeight="500" MouseMove="SignalPlot_MouseMove" AxesChanged="AxesChangedSignal" />
                 <WpfPlot Name="IndicatorSignal1" Height="250" AxesChanged="AxesChangedIndicator1"/>
                 <WpfPlot Name="IndicatorSignal2" Height="250" AxesChanged="AxesChangedIndicator2"/>
