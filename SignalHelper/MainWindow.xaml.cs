@@ -253,9 +253,9 @@ public partial class MainWindow : Window {
             return;
 
         var signalTypeDialog = new InputDialog();
-        bool? dialogResult = signalTypeDialog.ShowDialog();
+        signalTypeDialog.ShowDialog();
 
-        if (dialogResult ?? false)
+        if (signalTypeDialog.IsCancelled)
             return;
 
         var ofd = new SaveFileDialog();

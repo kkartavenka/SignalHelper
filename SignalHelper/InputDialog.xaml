@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SignalHelper"
         mc:Ignorable="d"
-        Title="Input Dialog" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterScreen" ContentRendered="Window_ContentRendered" ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True">
+        Title="Input Dialog" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True">
     <Grid Margin="10" >
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
