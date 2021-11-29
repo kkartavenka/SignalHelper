@@ -13,7 +13,7 @@ namespace SignalHelper.Classes {
 
             var x = Enumerable.Range(0, _period).Select(m => (double)m).ToArray();
 
-            for (int i = 0; i < runner.Signal.Count; i++) {
+            for (int i = 0; i < runner.Signal.Count - _period; i++) {
                 var yObserved = runner.Signal.Skip(i).Take(_period).Select(m => m.TypicalPrice).ToArray();
 
                 var ols = new OrdinaryLeastSquares();
@@ -25,9 +25,9 @@ namespace SignalHelper.Classes {
                 if (rSquared < _minRSquared)
                     continue;
 
-                if ((regression.Slope > 0) && (yObserved.Max() / yObserved[0] / x.Length - 1) > _minMeanChange)
+                if ((regression.Slope > 0) && ((yObserved.Max() / yObserved[0] - 1) / _period) > _minMeanChange)
                     runner.SetBuy(i);
-                else if ((regression.Slope < 0) && (yObserved[0] / yObserved.Min() / x.Length - 1) > _minMeanChange)
+                else if ((regression.Slope < 0) && ((yObserved[0] / yObserved.Min() - 1) / x.Length) > _minMeanChange)
                     runner.SetSell(i);
             }
         }

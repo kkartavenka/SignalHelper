@@ -26,9 +26,9 @@
                     <Label Content="Minimum R-Squared" Grid.Row="0" Grid.Column="2" FontWeight="Bold" />
                     <Label Content="Apply" Grid.Row="0" Grid.Column="3" FontWeight="Bold" />
 
-                    <TextBox Name="MeanChange" Grid.Row="1" Grid.Column="0"></TextBox>
-                    <TextBox Name="Period" Grid.Row="1" Grid.Column="1"></TextBox>
-                    <TextBox Name="MinRSquared" Grid.Row="1" Grid.Column="2"></TextBox>
+                    <TextBox Name="MeanChange" Grid.Row="1" Grid.Column="0" Text="0.2"></TextBox>
+                    <TextBox Name="Period" Grid.Row="1" Grid.Column="1" Text="5"></TextBox>
+                    <TextBox Name="MinRSquared" Grid.Row="1" Grid.Column="2" Text="0.7"></TextBox>
                     <Button Name="ApplyAutoAssignment" Grid.Row="1" Grid.Column="3" Height="20" VerticalAlignment="Top" Click="ApplyAutoAssignment_Click">Apply</Button>
                 </Grid>
                 <WpfPlot Name="SignalPlot" MinHeight="250" MaxHeight="500" MouseMove="SignalPlot_MouseMove" AxesChanged="AxesChangedSignal" />

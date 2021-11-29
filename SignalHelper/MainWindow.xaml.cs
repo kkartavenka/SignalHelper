@@ -79,8 +79,10 @@ public partial class MainWindow : Window {
         if (_runner == null)
             return;
 
-        if (int.TryParse(Period.Text, out int period) && double.TryParse(MinRSquared.Text, out double minRSquared) && double.TryParse(MeanChange.Text, out double meanChange))
-            new PositionAutoAssign(period: period, minMeanChange: meanChange, minRSquared: minRSquared).AssignViaTypicalPrice(ref _runner);
+        if (int.TryParse(Period.Text, out int period) && double.TryParse(MinRSquared.Text, out double minRSquared) && double.TryParse(MeanChange.Text, out double meanChange)) {
+            new PositionAutoAssign(period: period, minMeanChange: meanChange / 100, minRSquared: minRSquared).AssignViaTypicalPrice(ref _runner);
+            RenderPositions(true, true);
+        }
     }
 
     private void AddCustomContextMenuEvent(object? sender, EventArgs e) {
@@ -268,6 +270,38 @@ public partial class MainWindow : Window {
         _runner.ExportToCsv(filename: ofd.FileName, signalType: signalTypeDialog.SignalType);
     }
 
+    private void RenderPositions(bool buyPosition = false, bool sellPosition = false) {
+        if (_runner == null)
+            return;
+
+        if (buyPosition) {
+            var buySignal = _runner.Signal.Where(m => m.IsBuy);
+
+            SignalPlot.Plot.Remove(_buySignal);
+
+            if (buySignal.Any()) {
+                _buySignal = SignalPlot.Plot.AddScatter(xs: buySignal.Select(m => m.Date.ToOADate()).ToArray(), ys: buySignal.Select(m => m.Low).ToArray(), markerSize: 10, markerShape: MarkerShape.asterisk);
+                _buySignal.Color = System.Drawing.Color.Blue;
+                _buySignal.LineStyle = LineStyle.None;
+            }
+        }
+
+        if (sellPosition) {
+            var sellSignal = _runner.Signal.Where(m => m.IsSell);
+
+            SignalPlot.Plot.Remove(_sellSignal);
+
+            if (sellSignal.Any()) {
+                _sellSignal = SignalPlot.Plot.AddScatter(xs: sellSignal.Select(m => m.Date.ToOADate()).ToArray(), ys: sellSignal.Select(m => m.High).ToArray(), markerSize: 10, markerShape: MarkerShape.asterisk);
+                _sellSignal.Color = System.Drawing.Color.Red;
+                _sellSignal.LineStyle = LineStyle.None;
+            }
+        }
+
+        SignalPlot.Refresh();
+
+    }
+
     private void ReturnView(object sender, EventArgs e) {
         SignalPlot.Plot.AxisAuto();
         IndicatorSignal1.Plot.AxisAuto();
@@ -284,15 +318,7 @@ public partial class MainWindow : Window {
 
         _runner.SetBuy();
 
-        var buySignal = _runner.Signal.Where(m => m.IsBuy);
-
-        SignalPlot.Plot.Remove(_buySignal);
-
-        _buySignal = SignalPlot.Plot.AddScatter(xs: buySignal.Select(m => m.Date.ToOADate()).ToArray(), ys: buySignal.Select(m => m.Low).ToArray(), markerSize: 10, markerShape: MarkerShape.asterisk);
-        _buySignal.Color = System.Drawing.Color.Blue;
-        _buySignal.LineStyle = LineStyle.None;
-
-        SignalPlot.Refresh();
+        RenderPositions(buyPosition: true);
     }
 
     private void SetSellPosition(object sender, EventArgs e) {
@@ -301,15 +327,7 @@ public partial class MainWindow : Window {
 
         _runner.SetSell();
 
-        var sellSignal = _runner.Signal.Where(m => m.IsSell);
-
-        SignalPlot.Plot.Remove(_sellSignal);
-
-        _sellSignal = SignalPlot.Plot.AddScatter(xs: sellSignal.Select(m => m.Date.ToOADate()).ToArray(), ys: sellSignal.Select(m => m.High).ToArray(), markerSize: 10, markerShape: MarkerShape.asterisk);
-        _sellSignal.Color = System.Drawing.Color.Red;
-        _sellSignal.LineStyle = LineStyle.None;
-
-        SignalPlot.Refresh();
+        RenderPositions(sellPosition: true);
     }
 
     private void SignalPlot_MouseMove(object? sender, EventArgs e) {

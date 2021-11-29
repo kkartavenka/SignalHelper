@@ -83,8 +83,8 @@ internal class Runner {
             return false;
 
         string header = "signal_name,signal_type,attached_signal_name,is_buy,is_sell,date,open,high,low,close,volume,signal_rsi,signal_mfi,attached_signal_rsi,attached_signal_mfi";
-        
-        var lines = new List<string>(_signal.Count-_period);
+
+        var lines = new List<string>(_signal.Count - _period);
 
         lines.AddRange(_signal.Skip(_period + 2).Select(m => $"{SignalName},{signalType},{AttachedSignalName},{m.IsBuy},{m.IsSell},{m.Date.ToOADate()},{m.Open},{m.High},{m.Low},{m.Close},{m.Volume},{m.Rsi},{m.Mfi},{m.AttachedRsi},{m.AttachedMfi}"));
 
