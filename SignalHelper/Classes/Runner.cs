@@ -1,4 +1,6 @@
-﻿using ScottPlot;
+﻿using Accord.Math.Optimization.Losses;
+using Accord.Statistics.Models.Regression.Linear;
+using ScottPlot;
 using SignalHelper.Classes.Indicators;
 using SignalHelper.Models;
 using System;
@@ -82,11 +84,15 @@ internal class Runner {
         if (_signal == null)
             return false;
 
-        string header = "signal_name,signal_type,attached_signal_name,is_buy,is_sell,date,open,high,low,close,volume,signal_rsi,signal_mfi,attached_signal_rsi,attached_signal_mfi";
+        GetFit();
+
+        string header = "signal_name,signal_type,attached_signal_name,is_buy,is_sell,date,open,high,low,close,volume,signal_rsi,signal_mfi,attached_signal_rsi,attached_signal_mfi,fit1,fit2,fit1_r2,fit2_r2";
 
         var lines = new List<string>(_signal.Count - _period);
 
-        lines.AddRange(_signal.Skip(_period + 2).Select(m => $"{SignalName},{signalType},{AttachedSignalName},{m.IsBuy},{m.IsSell},{m.Date.ToOADate()},{m.Open},{m.High},{m.Low},{m.Close},{m.Volume},{m.Rsi},{m.Mfi},{m.AttachedRsi},{m.AttachedMfi}"));
+        lines.AddRange(_signal.Skip(_period + 12).Select(m => $"{SignalName},{signalType},{AttachedSignalName},{m.IsBuy},{m.IsSell},{m.Date.ToOADate()}," +
+            $"{m.Open},{m.High},{m.Low},{m.Close},{m.Volume},{m.Rsi},{m.Mfi},{m.AttachedRsi},{m.AttachedMfi}," +
+            $"{m.Fit1},{m.Fit2},{m.FitRsquared1},{m.FitRsquared2}"));
 
         if (!File.Exists(filename)) {
             lines.Insert(0, header);
@@ -119,6 +125,36 @@ internal class Runner {
             return secondIndex;
         else
             return firstIndex;
+    }
+
+    private void GetFit() {
+        int fitPeriod1 = 10;
+        int fitPeriod2 = 10;
+
+        var x1 = Enumerable.Range(0, fitPeriod1).Select(m => (double)m).ToArray();
+        var x2 = Enumerable.Range(0, fitPeriod2).Select(m => (double)m).ToArray();
+
+        for (int i = _period + fitPeriod2; i< Signal.Count; i++) {
+            var yObserved1 = Signal.Skip(i - fitPeriod1 + 1).Take(fitPeriod1).Select(m => m.Rsi).ToArray();
+            var yObserved2 = Signal.Skip(i - fitPeriod2 + 1).Take(fitPeriod2).Select(m => m.AttachedRsi).ToArray();
+
+            var ols = new OrdinaryLeastSquares();
+
+            var reg1 = ols.Learn(x1, yObserved1);
+            var reg2 = ols.Learn(x2, yObserved2);
+
+            var yExpected1 = reg1.Transform(x1);
+            var yExpected2 = reg2.Transform(x2);
+
+            var rSquared1 = new RSquaredLoss(1, yObserved1).Loss(yExpected1);
+            var rSquared2 = new RSquaredLoss(1, yObserved2).Loss(yExpected2);
+
+            Signal[i].Fit1 = reg1.Slope;
+            Signal[i].Fit2 = reg2.Slope;
+
+            Signal[i].FitRsquared1 = reg1.Slope * rSquared1;
+            Signal[i].FitRsquared2 = reg2.Slope * rSquared2;
+        }
     }
 
     internal void SetClickedIndex(double x) => _clickedIndex = GetNearbyCandleIndex(x);
