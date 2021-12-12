@@ -25,6 +25,10 @@ public partial class MainWindow : Window {
     private ScatterPlot? _buySignal;
     private ScatterPlot? _sellSignal;
 
+    private ScatterPlot? _smoothedSignal;
+    private ScatterPlot? _smoothedSignalDerivate;
+
+
     private readonly ContextMenu _rightClickMenu;
     private Runner? _runner;
 
@@ -79,8 +83,41 @@ public partial class MainWindow : Window {
         if (_runner == null)
             return;
 
-        if (int.TryParse(Period.Text, out int period) && double.TryParse(MinRSquared.Text, out double minRSquared) && double.TryParse(MeanChange.Text, out double meanChange)) {
-            new PositionAutoAssign(period: period, minMeanChange: meanChange / 100, minRSquared: minRSquared).AssignViaTypicalPrice(ref _runner);
+        if (int.TryParse(Period.Text, out int period) && double.TryParse(MinRSquared.Text, out double minRSquared) && double.TryParse(MeanChange.Text, out double meanChange) &&
+            int.TryParse(SmoothingWindowSize.Text, out int smoothingWindowSize) && int.TryParse(SmoothingPolyOrder.Text, out int smoothingPolyOrder) && int.TryParse(NearbyPeriod.Text, out int nearbyPeriod)) {
+
+            if (smoothingWindowSize % 2 == 0)
+                smoothingWindowSize += 1;
+
+            if (smoothingWindowSize <= smoothingPolyOrder)
+                return;
+
+            var autoLabel = new PositionAutoAssign(
+                period: period,
+                minMeanChange: meanChange / 100,
+                minRSquared: minRSquared,
+                windowSize: smoothingWindowSize,
+                polyOrder: smoothingPolyOrder);
+
+            autoLabel.AssignViaTypicalPrice(ref _runner);
+
+            if (_smoothedSignal != null)
+                SignalPlot.Plot.Remove(_smoothedSignal);
+
+            _smoothedSignal = SignalPlot.Plot.AddScatter(xs: autoLabel.SmoothedSignal.Select(m => m.Date.ToOADate()).ToArray(), ys: autoLabel.SmoothedSignal.Select(m => m.Smoothed).ToArray(), markerSize: 3, markerShape: MarkerShape.filledCircle);
+            _smoothedSignal.Color = System.Drawing.Color.Brown;
+
+            if (_smoothedSignalDerivate == null)
+                SignalPlot.Plot.AddAxis(ScottPlot.Renderable.Edge.Right, axisIndex: 2);
+            else
+                SignalPlot.Plot.Remove(_smoothedSignalDerivate);
+
+            _smoothedSignalDerivate = SignalPlot.Plot.AddScatter(xs: autoLabel.SmoothedSignal.Select(m => m.Date.ToOADate()).ToArray(), ys: autoLabel.SmoothedSignal.Select(m => m.DerivativeSmoothed).ToArray(), markerSize: 3, markerShape: MarkerShape.filledSquare);
+            _smoothedSignalDerivate.Color = System.Drawing.Color.DarkGreen;
+            _smoothedSignalDerivate.YAxisIndex = 2;
+
+
+
             RenderPositions(true, true);
         }
     }
@@ -267,7 +304,7 @@ public partial class MainWindow : Window {
         if (ofd.FileName == string.Empty)
             return;
 
-        _runner.ExportToCsv(filename: ofd.FileName, signalType: signalTypeDialog.SignalType);
+        _runner.ExportToCsv(filename: ofd.FileName, signalType: signalTypeDialog.SignalType, splitEvaluation: signalTypeDialog.SplitEvaluation);
     }
 
     private void RenderPositions(bool buyPosition = false, bool sellPosition = false) {

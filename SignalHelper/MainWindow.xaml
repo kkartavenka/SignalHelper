@@ -15,21 +15,29 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto" />
                         <RowDefinition Height="auto" />
                     </Grid.RowDefinitions>
+                    
+                    <Label Content="Smoothing Window" Grid.Row="0" Grid.Column="0" FontWeight="Bold" />
+                    <Label Content="Smoothing Poly Order" Grid.Row="0" Grid.Column="1" FontWeight="Bold" />
+                    <Label Content="Nearby period" Grid.Row="0" Grid.Column="2" FontWeight="Bold" />
+                    <Label Content="Mean Change, %" Grid.Row="0" Grid.Column="3" FontWeight="Bold" />
+                    <Label Content="Period" Grid.Row="0" Grid.Column="4" FontWeight="Bold" />
+                    <Label Content="Minimum R-Squared" Grid.Row="0" Grid.Column="5" FontWeight="Bold" />
 
-                    <Label Content="Mean Change, %" Grid.Row="0" Grid.Column="0" FontWeight="Bold" />
-                    <Label Content="Period" Grid.Row="0" Grid.Column="1" FontWeight="Bold" />
-                    <Label Content="Minimum R-Squared" Grid.Row="0" Grid.Column="2" FontWeight="Bold" />
-                    <Label Content="Apply" Grid.Row="0" Grid.Column="3" FontWeight="Bold" />
-
-                    <TextBox Name="MeanChange" Grid.Row="1" Grid.Column="0" Text="0.2"></TextBox>
-                    <TextBox Name="Period" Grid.Row="1" Grid.Column="1" Text="5"></TextBox>
-                    <TextBox Name="MinRSquared" Grid.Row="1" Grid.Column="2" Text="0.7"></TextBox>
-                    <Button Name="ApplyAutoAssignment" Grid.Row="1" Grid.Column="3" Height="20" VerticalAlignment="Top" Click="ApplyAutoAssignment_Click">Apply</Button>
+                    <TextBox Name="SmoothingWindowSize" Grid.Row="1" Grid.Column="0" Text="11"></TextBox>
+                    <TextBox Name="SmoothingPolyOrder" Grid.Row="1" Grid.Column="1" Text="3"></TextBox>
+                    <TextBox Name="NearbyPeriod" Grid.Row="1" Grid.Column="2" Text="3"></TextBox>
+                    <TextBox Name="MeanChange" Grid.Row="1" Grid.Column="3" Text="0.2"></TextBox>
+                    <TextBox Name="Period" Grid.Row="1" Grid.Column="4" Text="5"></TextBox>
+                    <TextBox Name="MinRSquared" Grid.Row="1" Grid.Column="5" Text="0.7"></TextBox>
+                    <Button Name="ApplyAutoAssignment" Grid.Row="1" Grid.Column="6" Height="20" VerticalAlignment="Top" Click="ApplyAutoAssignment_Click">Apply</Button>
                 </Grid>
                 <WpfPlot Name="SignalPlot" MinHeight="250" MaxHeight="500" MouseMove="SignalPlot_MouseMove" AxesChanged="AxesChangedSignal" />
                 <WpfPlot Name="IndicatorSignal1" Height="250" AxesChanged="AxesChangedIndicator1"/>

@@ -32,6 +32,7 @@ internal class Runner {
 
         new RelativeStrengthIndex(period: 14).Enrich(ref _signal);
         new MoneyFlowIndex(period: 14).Enrich(ref _signal);
+        new StochasticOscillator(10, 3).Enrich(ref _signal);
 
         SelectedCandle[0] = Plot.ElementAt(0);
     }
@@ -80,25 +81,42 @@ internal class Runner {
         row.IsSell = false;
     });
 
-    internal bool ExportToCsv(string filename, string signalType) {
+    internal bool ExportToCsv(string filename, string signalType, double splitEvaluation) {
         if (_signal == null)
             return false;
 
         GetFit();
 
-        string header = "signal_name,signal_type,attached_signal_name,is_buy,is_sell,date,open,high,low,close,volume,signal_rsi,signal_mfi,attached_signal_rsi,attached_signal_mfi,fit1,fit2,fit1_r2,fit2_r2";
+        string header = "signal_name,signal_type,attached_signal_name,is_buy,is_sell,date,open,high,low,close,volume,signal_rsi,signal_mfi,attached_signal_rsi,attached_signal_mfi,fit1,fit2,fit1_r2,fit2_r2,sto_k,sto_d";
 
-        var lines = new List<string>(_signal.Count - _period);
+        var linesTrain = new List<string>((int)(_signal.Count * (1 - splitEvaluation)) - _period);
+        var linesEval = new List<string>((int)(_signal.Count * splitEvaluation));
 
-        lines.AddRange(_signal.Skip(_period + 12).Select(m => $"{SignalName},{signalType},{AttachedSignalName},{m.IsBuy},{m.IsSell},{m.Date.ToOADate()}," +
+        var exportableSignal = _signal.Skip(_period + 12).ToList();
+        var evalSize = (int)(splitEvaluation * exportableSignal.Count);
+
+        linesTrain.AddRange(exportableSignal.SkipLast(evalSize).Select(m => $"{SignalName},{signalType},{AttachedSignalName},{m.IsBuy},{m.IsSell},{m.Date.ToOADate()}," +
             $"{m.Open},{m.High},{m.Low},{m.Close},{m.Volume},{m.Rsi},{m.Mfi},{m.AttachedRsi},{m.AttachedMfi}," +
-            $"{m.Fit1},{m.Fit2},{m.FitRsquared1},{m.FitRsquared2}"));
+            $"{m.Fit1},{m.Fit2},{m.FitRsquared1},{m.FitRsquared2},{m.StochasticK},{m.StochasticD}"));
 
-        if (!File.Exists(filename)) {
-            lines.Insert(0, header);
-            File.WriteAllLines(filename, lines);
+        linesEval.AddRange(exportableSignal.TakeLast(evalSize).Select(m => $"{SignalName},{signalType},{AttachedSignalName},{m.IsBuy},{m.IsSell},{m.Date.ToOADate()}," +
+            $"{m.Open},{m.High},{m.Low},{m.Close},{m.Volume},{m.Rsi},{m.Mfi},{m.AttachedRsi},{m.AttachedMfi}," +
+            $"{m.Fit1},{m.Fit2},{m.FitRsquared1},{m.FitRsquared2},{m.StochasticK},{m.StochasticD}"));
+
+        string fileTrain = $"{filename}-train";
+        string fileEval = $"{filename}-eval";
+
+        if (!File.Exists(fileTrain)) {
+            linesTrain.Insert(0, header);
+            File.WriteAllLines(fileTrain, linesTrain);
         } else
-            File.AppendAllLines(filename, lines);
+            File.AppendAllLines(fileTrain, linesTrain);
+
+        if (!File.Exists(fileEval)) {
+            linesEval.Insert(0, header);
+            File.WriteAllLines(fileEval, linesEval);
+        } else
+            File.AppendAllLines(fileEval, linesEval);
 
         return true;
     }

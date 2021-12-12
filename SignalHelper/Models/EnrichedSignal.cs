@@ -12,6 +12,8 @@ internal class EnrichedSignal : OhlcSignal {
 
     public double Rsi { get; set; }
     public double Mfi { get; set; }
+    public double StochasticK { get; set; }
+    public double StochasticD { get; set; }
 
     public double AttachedRsi { get; set; }
     public double AttachedMfi { get; set; }

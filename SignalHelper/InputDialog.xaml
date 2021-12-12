@@ -14,11 +14,16 @@
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
 
         <Label Content="Define signal type" Grid.Row="0" Grid.Column="0" Margin="10" />
         <TextBox MinWidth="250" Name="SignalTypeInput" Grid.Row="1" Grid.Column="0" Margin="10" />
-        <WrapPanel HorizontalAlignment="Right" Grid.Column="0" Grid.Row="2" Margin="0,20,0,0">
+        <Label Content="Define signal type" Grid.Row="2" Grid.Column="0" Margin="10" />
+        <TextBox Text="0.2" MinWidth="250" Name="SplitEvaluationInput" Grid.Row="3" Grid.Column="0" Margin="10" />
+
+        <WrapPanel HorizontalAlignment="Right" Grid.Column="0" Grid.Row="4" Margin="0,20,0,0">
             <Button IsDefault="True" Name="ConfirmButton" Margin="0,0,15,0" Width="100" Click="ConfirmButton_Click">Confirm</Button>
             <Button IsCancel="True" Name="CancelButton" Width="100" Click="CancelButton_Click">Cancel</Button>
         </WrapPanel>
