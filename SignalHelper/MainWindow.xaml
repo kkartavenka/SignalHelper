@@ -39,7 +39,7 @@
                     <TextBox Name="MinRSquared" Grid.Row="1" Grid.Column="5" Text="0.7"></TextBox>
                     <Button Name="ApplyAutoAssignment" Grid.Row="1" Grid.Column="6" Height="20" VerticalAlignment="Top" Click="ApplyAutoAssignment_Click">Apply</Button>
                 </Grid>
-                <WpfPlot Name="SignalPlot" MinHeight="250" MaxHeight="500" MouseMove="SignalPlot_MouseMove" AxesChanged="AxesChangedSignal" />
+                <WpfPlot Name="SignalPlot" MinHeight="250" MaxHeight="450" MouseMove="SignalPlot_MouseMove" AxesChanged="AxesChangedSignal" />
                 <WpfPlot Name="IndicatorSignal1" Height="250" AxesChanged="AxesChangedIndicator1"/>
                 <WpfPlot Name="IndicatorSignal2" Height="250" AxesChanged="AxesChangedIndicator2"/>
             </StackPanel>

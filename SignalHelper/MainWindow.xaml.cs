@@ -97,7 +97,8 @@ public partial class MainWindow : Window {
                 minMeanChange: meanChange / 100,
                 minRSquared: minRSquared,
                 windowSize: smoothingWindowSize,
-                polyOrder: smoothingPolyOrder);
+                polyOrder: smoothingPolyOrder,
+                nearbyPeriod: nearbyPeriod);
 
             autoLabel.AssignViaTypicalPrice(ref _runner);
 

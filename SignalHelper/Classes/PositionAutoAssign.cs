@@ -9,12 +9,15 @@ namespace SignalHelper.Classes;
 
 internal class PositionAutoAssign {
     private readonly double _minRSquared, _minMeanChange;
-    private readonly int _period;
+    private readonly int _period, _nearbyPeriod;
     private const double _shift = 1 / 3;
 
     private readonly int _windowSize = 11, _polyOrder = 2;
 
-    internal PositionAutoAssign(int period, double minMeanChange, double minRSquared, int windowSize, int polyOrder) => (_period, _minMeanChange, _minRSquared, _windowSize, _polyOrder) = (period, minMeanChange, minRSquared, windowSize, polyOrder);
+    internal PositionAutoAssign(int period, double minMeanChange, double minRSquared, int windowSize, int polyOrder, int nearbyPeriod) => 
+        (_period, _minMeanChange, _minRSquared, _windowSize, _polyOrder, _nearbyPeriod) = (period, minMeanChange, minRSquared, windowSize, polyOrder, nearbyPeriod);
+
+
     internal void AssignViaTypicalPrice(ref Runner runner) {
         runner.ClearPositions();
 
@@ -33,42 +36,60 @@ internal class PositionAutoAssign {
         for (int i = 0; i < filtered.Count; i++)
             SmoothedSignal.Add(new(date: runner.Signal[i].Date, smoothed: filtered[i], derivativeSmoothed: filteredDerivative[i]));
 
+        var positionsHash = new HashSet<int>();
+
         for (int i = 1; i < runner.Signal.Count - _period; i++) {
 
             if (filteredDerivative[i] * filteredDerivative[i - 1] > 0)
                 continue;
 
-            var yObservedReal = unfiltered.Skip(i).Take(_period).ToArray();
+            int startIdx = i - _nearbyPeriod;
+            int endIdx = i + _nearbyPeriod;
 
-            var yObserved = filtered.Skip(i).Take(_period).ToArray();
-            var yObservedReducedFirst = yObserved.Take(confirmationSize).ToArray();
-            var yObservedReducedLast = yObserved.TakeLast(confirmationSize).ToArray();
+            if (startIdx < 0)
+                startIdx = 0;
 
-            var ols = new OrdinaryLeastSquares();
-            var regression = ols.Learn(x, yObserved);
-            var regressionReducedFirst = ols.Learn(xReduced, yObservedReducedFirst);
+            if (endIdx > runner.Signal.Count - _period)
+                endIdx = runner.Signal.Count - _period;
 
-            var regressionReducedLast = ols.Learn(xReduced, yObservedReducedLast);
+            for (; startIdx < endIdx; startIdx++) {
+                var yObservedReal = unfiltered.Skip(startIdx).Take(_period).ToArray();
 
-            if ((regression.Slope * regressionReducedFirst.Slope < 0) || (regression.Slope * regressionReducedLast.Slope < 0))
-                continue;
+                var yObserved = filtered.Skip(startIdx).Take(_period).ToArray();
+                var yObservedReducedFirst = yObserved.Take(confirmationSize).ToArray();
+                var yObservedReducedLast = yObserved.TakeLast(confirmationSize).ToArray();
 
-            var rSquaredFirst = new RSquaredLoss(1, yObservedReducedFirst).Loss(regressionReducedFirst.Transform(xReduced));
-            var rSquaredLast = new RSquaredLoss(1, yObservedReducedLast).Loss(regressionReducedLast.Transform(xReduced));
+                var ols = new OrdinaryLeastSquares();
+                var regression = ols.Learn(x, yObserved);
+                var regressionReducedFirst = ols.Learn(xReduced, yObservedReducedFirst);
 
-            if (rSquaredFirst < _minMeanChange * 0.67 || rSquaredLast < _minMeanChange * 0.8)
-                continue;
+                var regressionReducedLast = ols.Learn(xReduced, yObservedReducedLast);
 
-            var yExpected = regression.Transform(x);
-            var rSquared = new RSquaredLoss(1, yObserved).Loss(yExpected);
+                if ((regression.Slope * regressionReducedFirst.Slope < 0) || (regression.Slope * regressionReducedLast.Slope < 0))
+                    continue;
 
-            if (rSquared < _minRSquared)
-                continue;
+                var rSquaredFirst = new RSquaredLoss(1, yObservedReducedFirst).Loss(regressionReducedFirst.Transform(xReduced));
+                var rSquaredLast = new RSquaredLoss(1, yObservedReducedLast).Loss(regressionReducedLast.Transform(xReduced));
 
-            if ((regression.Slope > 0) && ((yObservedReal.Max() / yObservedReal[0] - 1) / _period) > _minMeanChange)
-                runner.SetBuy(i);
-            else if ((regression.Slope < 0) && ((yObservedReal[0] / yObservedReal.Min() - 1) / x.Length) > _minMeanChange)
-                runner.SetSell(i);
+                if (rSquaredFirst < _minMeanChange * 0.67 || rSquaredLast < _minMeanChange * 0.8)
+                    continue;
+
+                var yExpected = regression.Transform(x);
+                var rSquared = new RSquaredLoss(1, yObserved).Loss(yExpected);
+
+                if (rSquared < _minRSquared)
+                    continue;
+
+                if (positionsHash.Contains(startIdx))
+                    continue;
+
+                positionsHash.Add(startIdx);
+
+                if ((regression.Slope > 0) && ((yObservedReal.Max() / yObservedReal[0] - 1) / _period) > _minMeanChange)
+                    runner.SetBuy(startIdx);
+                else if ((regression.Slope < 0) && ((yObservedReal[0] / yObservedReal.Min() - 1) / x.Length) > _minMeanChange)
+                    runner.SetSell(startIdx);
+            }
         }
     }
 

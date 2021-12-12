@@ -1,7 +1,13 @@
 # SignalHelper
 Repository to help visualise and label OHLC data with buy/sell positions.
 
-![App running](https://github.com/kkartavenka/SignalHelper/blob/master/SignalHelper/Img/Screenshot.png)
+### Display
+
+![App running](https://github.com/kkartavenka/SignalHelper/blob/master/SignalHelper/Img/Screenshot1.png)
+
+### Label possible buy (blue) and sell (red) positions [in-development]
+
+![App running](https://github.com/kkartavenka/SignalHelper/blob/master/SignalHelper/Img/Screenshot2.png)
 
 
 ## Walkthrough:
