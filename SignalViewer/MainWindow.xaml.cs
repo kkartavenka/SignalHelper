@@ -22,9 +22,11 @@ namespace SignalViewer;
 /// </summary>
 public partial class MainWindow : Window {
 
-    private ContextMenu _cmTreeViewRoot, _cmTreeViewSub;
+    private uint _plotCounter = 1;
+    private readonly ContextMenu _cmTreeViewRoot, _cmTreeViewSub;
+    private List<ScottPlot.WpfPlot> _signals = new();
 
-    private List<PlotGroup> _plotGroups = new() {
+    private ObservableCollection<PlotGroup> _plotGroups = new() {
         new() { 
             Name = "Main", 
             ItemType = TreeViewItemType.RootMain,
@@ -49,6 +51,16 @@ public partial class MainWindow : Window {
 
     private void meiAttach_Click(object sender, RoutedEventArgs e) {
 
+    }
+
+    private void AddPlotMenu_Click(object sender, RoutedEventArgs e) {
+        var newPlot = new ScottPlot.WpfPlot() { MinHeight = 100 };
+        plotPanel.Children.Add(newPlot);
+        _plotGroups.Add(new PlotGroup() {
+            Name = $"New Plot [{_plotCounter}]", 
+            ItemType = TreeViewItemType.Root, 
+            Members = new()
+        });
     }
 
     private void trvPlot_PreviewMouseRightButtonUp(object sender, MouseButtonEventArgs e) {

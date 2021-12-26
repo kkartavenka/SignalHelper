@@ -9,7 +9,7 @@
         Title="MainWindow" Height="450" Width="800">
     <Window.Resources>
         <ContextMenu x:Key="cmTreeViewRoot">
-            <MenuItem Header="Add plot" />
+            <MenuItem Header="Add plot" Click="AddPlotMenu_Click" />
             <MenuItem Header="Remove plot" />
         </ContextMenu>
         <ContextMenu x:Key="cmTreeViewSub">
@@ -64,7 +64,7 @@
             ResizeDirection="Columns"
             ResizeBehavior="PreviousAndNext"/>
         <ScrollViewer Grid.Column="2">
-            <StackPanel>
+            <StackPanel Name="plotPanel">
                 <WpfPlot Name="MainSignal" MinHeight="300" />
                 <!--="SignalPlot_MouseMove" AxesChanged="AxesChangedSignal"-->
 
