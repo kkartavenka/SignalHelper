@@ -3,6 +3,7 @@ using SignalViewer.Classes.Extensions;
 using SignalViewer.Models;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 
@@ -21,8 +22,8 @@ internal class CsvReader {
             DateTime trueDate;
 
             var dateTimeString = $"{row[(int)MetaTraderColumn.Date]} {row[(int)MetaTraderColumn.Time]}";
-            var v1Parsed = DateTime.TryParseExact(dateTimeString, "yyyy.MM.dd H:mm", null, System.Globalization.DateTimeStyles.None, out DateTime v1);
-            var v2Parsed = DateTime.TryParseExact(dateTimeString, "yyyy.MM.dd HH:mm", null, System.Globalization.DateTimeStyles.None, out DateTime v2);
+            var v1Parsed = DateTime.TryParseExact(dateTimeString, "yyyy.MM.dd H:mm", null, DateTimeStyles.None, out DateTime v1);
+            var v2Parsed = DateTime.TryParseExact(dateTimeString, "yyyy.MM.dd HH:mm", null, DateTimeStyles.None, out DateTime v2);
 
             trueDate = v1Parsed ? v1 : v2Parsed ? v2 : new();
 
